@@ -7,7 +7,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://prodychat.personifygo.com/PersonifyGO/*"
+        "https://prodychat.personifygo.com/PersonifyGO/Order/Index*"
       ],
       "js": [
         "calculator.js",
