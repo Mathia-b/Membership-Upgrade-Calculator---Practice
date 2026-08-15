@@ -8,6 +8,14 @@
    WEBSITE SETTINGS
    ========================================================== */
 let calculatedUpgradeAmount = null;
+const TARGET_URL =
+  "https://prodychat.personifygo.com/PersonifyGO/Order/Index#";
+
+if (window.location.href !== TARGET_URL) {
+  // Do not load the calculator on any other page.
+} else {
+  startCalculator();
+}
 const CALCULATOR_SETTINGS = {
 
   adjustmentAmountSelector:
@@ -19,16 +27,19 @@ const CALCULATOR_SETTINGS = {
    PREVENT DUPLICATE BUTTONS
    ========================================================== */
 
-if (
-  !document.getElementById(
-    "membership-upgrade-calculator-button"
-  )
-) {
+function startCalculator() {
 
-  initializeCalculator();
+  if (
+    !document.getElementById(
+      "membership-upgrade-calculator-button"
+    )
+  ) {
+
+    initializeCalculator();
+
+  }
 
 }
-
 
 /* ==========================================================
    INITIALIZE
