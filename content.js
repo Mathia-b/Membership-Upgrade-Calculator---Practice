@@ -10,25 +10,8 @@
 
 const CALCULATOR_SETTINGS = {
 
-  /*
-    IMPORTANT PLACEHOLDER
-
-    We need to inspect the actual Adjustment Amount textbox
-    to get its HTML selector.
-
-    Later this might become something like:
-
-    "#AdjustmentAmount"
-
-    or:
-
-    'input[name="AdjustmentAmount"]'
-
-    DO NOT GUESS THIS VALUE IN PRODUCTION.
-  */
-
   adjustmentAmountSelector:
-    "#PLACEHOLDER_ADJUSTMENT_AMOUNT"
+    "#Order_AdjustOrderPriceView_txtAdjustmentAmount"
 
 };
 
@@ -569,9 +552,11 @@ function applyUpgradeAmount() {
     );
 
 
-  if (
-    calculatedUpgradeAmount === null
-  ) {
+  /* -----------------------------------------------
+     SAFETY CHECK
+     ----------------------------------------------- */
+
+  if (calculatedUpgradeAmount === null) {
 
     statusMessage.textContent =
       "Calculate the upgrade amount first.";
@@ -580,6 +565,10 @@ function applyUpgradeAmount() {
 
   }
 
+
+  /* -----------------------------------------------
+     FIND PERSONIFY FIELD
+     ----------------------------------------------- */
 
   const adjustmentField =
     document.querySelector(
@@ -591,7 +580,7 @@ function applyUpgradeAmount() {
   if (!adjustmentField) {
 
     statusMessage.textContent =
-      "The Adjustment Amount field is not connected yet. Its webpage selector still needs to be added.";
+      "The Adjustment Amount field could not be found.";
 
     return;
 
@@ -599,60 +588,127 @@ function applyUpgradeAmount() {
 
 
   /*
-    Give the field focus first.
+    IMPORTANT:
+
+    calculatedUpgradeAmount is the FULL calculated amount.
+
+    Example:
+
+    Current membership = $68.00
+    Add               = $12.00
+
+    calculatedUpgradeAmount = $80.00
+
+    Therefore 80.00 is what we send to the field.
   */
 
-  adjustmentField.focus();
+  const amountToApply =
+    calculatedUpgradeAmount;
 
 
-  /*
-    Put the amount into the field.
-  */
+  try {
 
-  adjustmentField.value =
-    calculatedUpgradeAmount.toFixed(
-      2
+    /* -----------------------------------------------
+       TRY KENDO NUMERIC TEXTBOX
+       ----------------------------------------------- */
+
+    if (
+      typeof window.jQuery !== "undefined"
+    ) {
+
+      const $field =
+        window.jQuery(
+          adjustmentField
+        );
+
+
+      const kendoWidget =
+        $field.data(
+          "kendoNumericTextBox"
+        );
+
+
+      if (kendoWidget) {
+
+        kendoWidget.value(
+          amountToApply
+        );
+
+
+        kendoWidget.trigger(
+          "change"
+        );
+
+
+        statusMessage.textContent =
+          `${formatMoney(
+            amountToApply
+          )} was entered into Adjustment Amount. Review the Personify results before continuing.`;
+
+
+        return;
+
+      }
+
+    }
+
+
+    /* -----------------------------------------------
+       FALLBACK METHOD
+       ----------------------------------------------- */
+
+    adjustmentField.value =
+      amountToApply.toFixed(2);
+
+
+    adjustmentField.dispatchEvent(
+      new Event(
+        "input",
+        {
+          bubbles: true
+        }
+      )
     );
 
 
-  /*
-    Tell the webpage that the value changed.
-
-    Some web applications don't recognize direct
-    JavaScript field changes unless input/change
-    events are also triggered.
-  */
-
-  adjustmentField.dispatchEvent(
-    new Event(
-      "input",
-      {
-        bubbles: true
-      }
-    )
-  );
+    adjustmentField.dispatchEvent(
+      new Event(
+        "change",
+        {
+          bubbles: true
+        }
+      )
+    );
 
 
-  adjustmentField.dispatchEvent(
-    new Event(
-      "change",
-      {
-        bubbles: true
-      }
-    )
-  );
+    adjustmentField.dispatchEvent(
+      new Event(
+        "blur",
+        {
+          bubbles: true
+        }
+      )
+    );
 
 
-  /*
-    Remove focus after setting value.
-  */
+    statusMessage.textContent =
+      `${formatMoney(
+        amountToApply
+      )} was entered into Adjustment Amount. Review the Personify results before continuing.`;
 
-  adjustmentField.blur();
+  }
+
+  catch (error) {
+
+    console.error(
+      "Membership Upgrade Calculator:",
+      error
+    );
 
 
-  statusMessage.textContent =
-    `${formatMoney(
-      calculatedUpgradeAmount
-    )} was entered into Adjustment Amount. Review it before continuing.`;
+    statusMessage.textContent =
+      "The field was found, but the calculator could not update it. Nothing was submitted.";
+
+  }
 
 }
