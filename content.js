@@ -567,7 +567,7 @@ function calculateMembershipUpgrade() {
   }
 
   const upgradedPrice =
-    currentPrice + 12;
+  currentPrice + UPGRADE_AMOUNT;
 
   calculatedUpgradeAmount =
     upgradedPrice;
