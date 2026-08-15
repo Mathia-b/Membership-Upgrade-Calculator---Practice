@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Membership Upgrade Calculator - Practice",
+  "version": "1.0.0",
+  "description": "Practice calculator for adding a $12 membership upgrade amount.",
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://prodychat.personifygo.com/PersonifyGO/*"
+      ],
+      "js": [
+        "calculator.js",
+        "content.js"
+      ],
+      "css": [
+        "calculator.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
