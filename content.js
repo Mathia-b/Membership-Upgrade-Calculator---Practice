@@ -455,78 +455,81 @@ let calculatedUpgradeAmount = null;
 
 function calculateMembershipUpgrade() {
 
-  try {
-
-    const membershipType =
-      document.getElementById(
-        "current-membership-type"
-      ).value;
-
-
-    const result =
-      calculateUpgrade(
-        membershipType
-      );
-
-
-    calculatedUpgradeAmount =
-      result.upgradedPrice;
-
-
+  const membershipDropdown =
     document.getElementById(
-      "result-current-price"
-    ).textContent =
-      formatMoney(
-        result.currentPrice
-      );
-
-
-    document.getElementById(
-      "result-upgraded-price"
-    ).textContent =
-      formatMoney(
-        result.upgradedPrice
-      );
-
-
-    document.getElementById(
-      "upgrade-calculation-results"
-    ).classList.remove(
-      "calculator-hidden"
+      "current-membership-type"
     );
 
+  const membershipType =
+    membershipDropdown.value;
 
-    document.getElementById(
-      "apply-upgrade-button"
-    ).disabled =
-      false;
+  const currentPrice =
+    MEMBERSHIP_RATES[
+      membershipType
+    ];
 
-
-    document.getElementById(
-      "apply-upgrade-button"
-    ).textContent =
-      `Apply ${formatMoney(
-        result.upgradedPrice
-      )}`;
-
-
-    document.getElementById(
-      "upgrade-status-message"
-    ).textContent =
-      "";
-
-  }
-
-  catch (error) {
+  if (currentPrice === undefined) {
 
     alert(
-      error.message
+      "The membership price could not be found."
     );
+
+    return;
 
   }
 
-}
+  const upgradedPrice =
+    currentPrice + 12;
 
+  calculatedUpgradeAmount =
+    upgradedPrice;
+
+
+  document.getElementById(
+    "result-current-price"
+  ).textContent =
+    formatMoney(
+      currentPrice
+    );
+
+
+  document.getElementById(
+    "result-upgraded-price"
+  ).textContent =
+    formatMoney(
+      upgradedPrice
+    );
+
+
+  document.getElementById(
+    "upgrade-calculation-results"
+  ).classList.remove(
+    "calculator-hidden"
+  );
+
+
+  const applyButton =
+    document.getElementById(
+      "apply-upgrade-button"
+    );
+
+
+  applyButton.disabled =
+    false;
+
+
+  applyButton.textContent =
+    `Apply ${formatMoney(
+      upgradedPrice
+    )}`;
+
+
+  document.getElementById(
+    "upgrade-status-message"
+  ).textContent =
+    "Calculation complete.";
+
+}
 
 /* ==========================================================
    APPLY AMOUNT TO PERSONIFY
