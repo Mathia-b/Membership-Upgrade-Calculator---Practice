@@ -34,7 +34,7 @@ if (
 /* ==========================================================
    INITIALIZE
    ========================================================== */
-
+let calculatedUpgradeAmount = null;
 function initializeCalculator() {
 
   createCalculatorButton();
@@ -449,9 +449,6 @@ function closeCalculator() {
 /* ==========================================================
    CALCULATE UPGRADE
    ========================================================== */
-
-let calculatedUpgradeAmount = null;
-
 
 function calculateMembershipUpgrade() {
 
