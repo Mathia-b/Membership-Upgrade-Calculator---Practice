@@ -34,7 +34,7 @@ if (
 /* ==========================================================
    INITIALIZE
    ========================================================== */
-let calculatedUpgradeAmount = null;
+
 function initializeCalculator() {
 
   createCalculatorButton();
@@ -42,7 +42,7 @@ function initializeCalculator() {
   createCalculatorPanel();
 
 }
-
+let calculatedUpgradeAmount = null;
 
 /* ==========================================================
    CREATE FLOATING CALCULATOR BUTTON
