@@ -644,7 +644,24 @@ function applyUpgradeAmount() {
 
 
   /* -----------------------------------------------
-     SAFETY CHECK
+     VERIFY EXPECTED PAGE
+     ----------------------------------------------- */
+
+  if (
+    window.location.pathname !==
+    "/PersonifyGO/Order/Index"
+  ) {
+
+    statusMessage.textContent =
+      "You are no longer on the expected Personify page. Nothing was changed.";
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------------
+     MAKE SURE A CALCULATION EXISTS
      ----------------------------------------------- */
 
   if (calculatedUpgradeAmount === null) {
@@ -658,7 +675,7 @@ function applyUpgradeAmount() {
 
 
   /* -----------------------------------------------
-     FIND PERSONIFY FIELD
+     FIND THE EXACT PERSONIFY FIELD
      ----------------------------------------------- */
 
   const adjustmentField =
@@ -671,37 +688,40 @@ function applyUpgradeAmount() {
   if (!adjustmentField) {
 
     statusMessage.textContent =
-      "The Adjustment Amount field could not be found.";
+      "The Adjustment Amount field could not be found. Nothing was changed.";
 
     return;
 
   }
 
 
-  /*
-    IMPORTANT:
-
-    calculatedUpgradeAmount is the FULL calculated amount.
-
-    Example:
-
-    Current membership = $68.00
-    Add               = $12.00
-
-    calculatedUpgradeAmount = $80.00
-
-    Therefore 80.00 is what we send to the field.
-  */
-
   const amountToApply =
     calculatedUpgradeAmount;
 
 
-  
+  /* -----------------------------------------------
+     FINAL AMOUNT SAFETY CHECK
+     ----------------------------------------------- */
 
-    /* -----------------------------------------------
-       FALLBACK METHOD
-       ----------------------------------------------- */
+  if (
+    !Number.isFinite(amountToApply) ||
+    amountToApply < 0 ||
+    amountToApply > 500
+  ) {
+
+    statusMessage.textContent =
+      "The calculated amount failed the safety check. Nothing was changed.";
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------------
+     APPLY VALUE
+     ----------------------------------------------- */
+
+  try {
 
     adjustmentField.value =
       amountToApply.toFixed(2);
