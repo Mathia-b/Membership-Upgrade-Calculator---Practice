@@ -5,17 +5,16 @@
 
 
 /* ==========================================================
+   GLOBAL CALCULATOR VALUE
+   ========================================================== */
+
+let calculatedUpgradeAmount = null;
+
+
+/* ==========================================================
    WEBSITE SETTINGS
    ========================================================== */
-let calculatedUpgradeAmount = null;
-const TARGET_URL =
-  "https://prodychat.personifygo.com/PersonifyGO/Order/Index#";
 
-if (window.location.href !== TARGET_URL) {
-  // Do not load the calculator on any other page.
-} else {
-  startCalculator();
-}
 const CALCULATOR_SETTINGS = {
 
   adjustmentAmountSelector:
@@ -23,23 +22,106 @@ const CALCULATOR_SETTINGS = {
 
 };
 
+
 /* ==========================================================
-   PREVENT DUPLICATE BUTTONS
+   DETERMINE WHEN CALCULATOR SHOULD APPEAR
+
+   Calculator only appears when:
+
+   1. User is on the Personify Order page
+   AND
+   2. The Adjustment Amount field exists
    ========================================================== */
 
-function startCalculator() {
+function checkCalculatorPage() {
+
+  const correctPage =
+    window.location.pathname ===
+    "/PersonifyGO/Order/Index";
+
+
+  const adjustmentAmountField =
+    document.querySelector(
+      CALCULATOR_SETTINGS
+        .adjustmentAmountSelector
+    );
+
+
+  const calculatorButton =
+    document.getElementById(
+      "membership-upgrade-calculator-button"
+    );
+
+
+  const calculatorPanel =
+    document.getElementById(
+      "membership-upgrade-calculator-panel"
+    );
+
+
+  /* ========================================================
+     SHOW CALCULATOR
+     ======================================================== */
 
   if (
-    !document.getElementById(
-      "membership-upgrade-calculator-button"
-    )
+    correctPage &&
+    adjustmentAmountField
   ) {
 
-    initializeCalculator();
+    if (!calculatorButton) {
+
+      initializeCalculator();
+
+    }
+
+  }
+
+
+  /* ========================================================
+     HIDE CALCULATOR
+     ======================================================== */
+
+  else {
+
+    if (calculatorButton) {
+
+      calculatorButton.remove();
+
+    }
+
+
+    if (calculatorPanel) {
+
+      calculatorPanel.remove();
+
+    }
+
+
+    calculatedUpgradeAmount = null;
 
   }
 
 }
+
+
+/* ==========================================================
+   CHECK WHEN PAGE FIRST LOADS
+   ========================================================== */
+
+checkCalculatorPage();
+
+
+/* ==========================================================
+   PERSONIFY LOADS SOME CONTENT DYNAMICALLY
+
+   Check twice per second to see whether the
+   Adjustment Amount field has appeared or disappeared.
+   ========================================================== */
+
+setInterval(
+  checkCalculatorPage,
+  500
+);
 
 /* ==========================================================
    INITIALIZE
