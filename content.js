@@ -697,52 +697,7 @@ function applyUpgradeAmount() {
     calculatedUpgradeAmount;
 
 
-  try {
-
-    /* -----------------------------------------------
-       TRY KENDO NUMERIC TEXTBOX
-       ----------------------------------------------- */
-
-    if (
-      typeof window.jQuery !== "undefined"
-    ) {
-
-      const $field =
-        window.jQuery(
-          adjustmentField
-        );
-
-
-      const kendoWidget =
-        $field.data(
-          "kendoNumericTextBox"
-        );
-
-
-      if (kendoWidget) {
-
-        kendoWidget.value(
-          amountToApply
-        );
-
-
-        kendoWidget.trigger(
-          "change"
-        );
-
-
-        statusMessage.textContent =
-          `${formatMoney(
-            amountToApply
-          )} was entered into Adjustment Amount. Review the Personify results before continuing.`;
-
-
-        return;
-
-      }
-
-    }
-
+  
 
     /* -----------------------------------------------
        FALLBACK METHOD
