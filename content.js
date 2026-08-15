@@ -7,14 +7,13 @@
 /* ==========================================================
    WEBSITE SETTINGS
    ========================================================== */
-
+let calculatedUpgradeAmount = null;
 const CALCULATOR_SETTINGS = {
 
   adjustmentAmountSelector:
     "#Order_AdjustOrderPriceView_txtAdjustmentAmount"
 
 };
-
 
 /* ==========================================================
    PREVENT DUPLICATE BUTTONS
@@ -42,7 +41,6 @@ function initializeCalculator() {
   createCalculatorPanel();
 
 }
-let calculatedUpgradeAmount = null;
 
 /* ==========================================================
    CREATE FLOATING CALCULATOR BUTTON
