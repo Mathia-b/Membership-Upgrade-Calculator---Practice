@@ -1,0 +1,658 @@
+/* ==========================================================
+   MEMBERSHIP UPGRADE CALCULATOR
+   PRACTICE VERSION
+   ========================================================== */
+
+
+/* ==========================================================
+   WEBSITE SETTINGS
+   ========================================================== */
+
+const CALCULATOR_SETTINGS = {
+
+  /*
+    IMPORTANT PLACEHOLDER
+
+    We need to inspect the actual Adjustment Amount textbox
+    to get its HTML selector.
+
+    Later this might become something like:
+
+    "#AdjustmentAmount"
+
+    or:
+
+    'input[name="AdjustmentAmount"]'
+
+    DO NOT GUESS THIS VALUE IN PRODUCTION.
+  */
+
+  adjustmentAmountSelector:
+    "#PLACEHOLDER_ADJUSTMENT_AMOUNT"
+
+};
+
+
+/* ==========================================================
+   PREVENT DUPLICATE BUTTONS
+   ========================================================== */
+
+if (
+  !document.getElementById(
+    "membership-upgrade-calculator-button"
+  )
+) {
+
+  initializeCalculator();
+
+}
+
+
+/* ==========================================================
+   INITIALIZE
+   ========================================================== */
+
+function initializeCalculator() {
+
+  createCalculatorButton();
+
+  createCalculatorPanel();
+
+}
+
+
+/* ==========================================================
+   CREATE FLOATING CALCULATOR BUTTON
+   ========================================================== */
+
+function createCalculatorButton() {
+
+  const button =
+    document.createElement("button");
+
+
+  button.id =
+    "membership-upgrade-calculator-button";
+
+
+  button.type =
+    "button";
+
+
+  button.innerHTML =
+    "🧮";
+
+
+  button.title =
+    "Membership Upgrade Calculator";
+
+
+  button.setAttribute(
+    "aria-label",
+    "Open Membership Upgrade Calculator"
+  );
+
+
+  document.body.appendChild(
+    button
+  );
+
+
+  button.addEventListener(
+    "click",
+    toggleCalculator
+  );
+
+}
+
+
+/* ==========================================================
+   CREATE CALCULATOR PANEL
+   ========================================================== */
+
+function createCalculatorPanel() {
+
+  const panel =
+    document.createElement("div");
+
+
+  panel.id =
+    "membership-upgrade-calculator-panel";
+
+
+  panel.innerHTML = `
+
+    <div class="upgrade-calculator-header">
+
+      <div>
+
+        <div class="upgrade-calculator-eyebrow">
+          PRACTICE TOOL
+        </div>
+
+        <h2>
+          Membership Upgrade
+        </h2>
+
+      </div>
+
+
+      <button
+        id="upgrade-calculator-close"
+        type="button"
+        aria-label="Close calculator"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="upgrade-calculator-body">
+
+
+      <label class="upgrade-calculator-field">
+
+        <span>
+          Current Membership
+        </span>
+
+        <select
+          id="current-membership-type"
+        >
+        </select>
+
+      </label>
+
+
+      <div class="upgrade-price-box">
+
+        <span>
+          Current Membership Price
+        </span>
+
+        <strong id="current-membership-price">
+          $0.00
+        </strong>
+
+      </div>
+
+
+      <button
+        id="calculate-upgrade-button"
+        type="button"
+      >
+        + Add $12 Upgrade
+      </button>
+
+
+      <div
+        id="upgrade-calculation-results"
+        class="calculator-hidden"
+      >
+
+
+        <div class="upgrade-result-row">
+
+          <span>
+            Current Price
+          </span>
+
+          <strong id="result-current-price">
+            $0.00
+          </strong>
+
+        </div>
+
+
+        <div class="upgrade-result-row">
+
+          <span>
+            Upgrade Amount
+          </span>
+
+          <strong>
+            + $12.00
+          </strong>
+
+        </div>
+
+
+        <div class="upgrade-result-divider">
+        </div>
+
+
+        <div class="upgrade-total-box">
+
+          <span>
+            NEW AMOUNT
+          </span>
+
+          <strong id="result-upgraded-price">
+            $0.00
+          </strong>
+
+        </div>
+
+
+        <div class="review-message">
+
+          Review the amount before applying it
+          to the Adjustment Amount field.
+
+        </div>
+
+
+        <button
+          id="apply-upgrade-button"
+          type="button"
+          disabled
+        >
+          Apply Amount
+        </button>
+
+
+        <div
+          id="upgrade-status-message"
+          aria-live="polite"
+        >
+        </div>
+
+      </div>
+
+
+      <div class="upgrade-safety-box">
+
+        <strong>
+          Practice Mode
+        </strong>
+
+        <br><br>
+
+        This extension only calculates an amount
+        and fills the Adjustment Amount field.
+
+        <br><br>
+
+        It does not submit the adjustment,
+        process a payment, save the order,
+        or complete the transaction.
+
+      </div>
+
+
+    </div>
+
+  `;
+
+
+  document.body.appendChild(
+    panel
+  );
+
+
+  populateMembershipOptions();
+
+  updateMembershipPreview();
+
+  attachCalculatorEvents();
+
+}
+
+
+/* ==========================================================
+   POPULATE MEMBERSHIP DROPDOWN
+   ========================================================== */
+
+function populateMembershipOptions() {
+
+  const dropdown =
+    document.getElementById(
+      "current-membership-type"
+    );
+
+
+  Object.keys(
+    MEMBERSHIP_RATES
+  ).forEach(
+    membershipType => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        membershipType;
+
+
+      option.textContent =
+        membershipType;
+
+
+      dropdown.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
+
+
+/* ==========================================================
+   UPDATE CURRENT PRICE
+   ========================================================== */
+
+function updateMembershipPreview() {
+
+  const membershipType =
+    document.getElementById(
+      "current-membership-type"
+    ).value;
+
+
+  const currentPrice =
+    MEMBERSHIP_RATES[
+      membershipType
+    ];
+
+
+  document.getElementById(
+    "current-membership-price"
+  ).textContent =
+    formatMoney(
+      currentPrice
+    );
+
+
+  /*
+    If the user changes memberships after performing
+    a calculation, require them to calculate again.
+  */
+
+  calculatedUpgradeAmount = null;
+
+
+  const results =
+    document.getElementById(
+      "upgrade-calculation-results"
+    );
+
+
+  results.classList.add(
+    "calculator-hidden"
+  );
+
+
+  const applyButton =
+    document.getElementById(
+      "apply-upgrade-button"
+    );
+
+
+  applyButton.disabled = true;
+
+}
+
+
+/* ==========================================================
+   EVENT LISTENERS
+   ========================================================== */
+
+function attachCalculatorEvents() {
+
+  document.getElementById(
+    "upgrade-calculator-close"
+  ).addEventListener(
+    "click",
+    closeCalculator
+  );
+
+
+  document.getElementById(
+    "current-membership-type"
+  ).addEventListener(
+    "change",
+    updateMembershipPreview
+  );
+
+
+  document.getElementById(
+    "calculate-upgrade-button"
+  ).addEventListener(
+    "click",
+    calculateMembershipUpgrade
+  );
+
+
+  document.getElementById(
+    "apply-upgrade-button"
+  ).addEventListener(
+    "click",
+    applyUpgradeAmount
+  );
+
+}
+
+
+/* ==========================================================
+   OPEN / CLOSE CALCULATOR
+   ========================================================== */
+
+function toggleCalculator() {
+
+  document.getElementById(
+    "membership-upgrade-calculator-panel"
+  ).classList.toggle(
+    "calculator-open"
+  );
+
+}
+
+
+function closeCalculator() {
+
+  document.getElementById(
+    "membership-upgrade-calculator-panel"
+  ).classList.remove(
+    "calculator-open"
+  );
+
+}
+
+
+/* ==========================================================
+   CALCULATE UPGRADE
+   ========================================================== */
+
+let calculatedUpgradeAmount = null;
+
+
+function calculateMembershipUpgrade() {
+
+  try {
+
+    const membershipType =
+      document.getElementById(
+        "current-membership-type"
+      ).value;
+
+
+    const result =
+      calculateUpgrade(
+        membershipType
+      );
+
+
+    calculatedUpgradeAmount =
+      result.upgradedPrice;
+
+
+    document.getElementById(
+      "result-current-price"
+    ).textContent =
+      formatMoney(
+        result.currentPrice
+      );
+
+
+    document.getElementById(
+      "result-upgraded-price"
+    ).textContent =
+      formatMoney(
+        result.upgradedPrice
+      );
+
+
+    document.getElementById(
+      "upgrade-calculation-results"
+    ).classList.remove(
+      "calculator-hidden"
+    );
+
+
+    document.getElementById(
+      "apply-upgrade-button"
+    ).disabled =
+      false;
+
+
+    document.getElementById(
+      "apply-upgrade-button"
+    ).textContent =
+      `Apply ${formatMoney(
+        result.upgradedPrice
+      )}`;
+
+
+    document.getElementById(
+      "upgrade-status-message"
+    ).textContent =
+      "";
+
+  }
+
+  catch (error) {
+
+    alert(
+      error.message
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   APPLY AMOUNT TO PERSONIFY
+
+   SAFETY BOUNDARY:
+
+   This function ONLY attempts to change the value of
+   the Adjustment Amount textbox.
+
+   It does NOT:
+   - click Save
+   - click Submit
+   - process payment
+   - complete an order
+   - click any other Personify button
+   ========================================================== */
+
+function applyUpgradeAmount() {
+
+  const statusMessage =
+    document.getElementById(
+      "upgrade-status-message"
+    );
+
+
+  if (
+    calculatedUpgradeAmount === null
+  ) {
+
+    statusMessage.textContent =
+      "Calculate the upgrade amount first.";
+
+    return;
+
+  }
+
+
+  const adjustmentField =
+    document.querySelector(
+      CALCULATOR_SETTINGS
+        .adjustmentAmountSelector
+    );
+
+
+  if (!adjustmentField) {
+
+    statusMessage.textContent =
+      "The Adjustment Amount field is not connected yet. Its webpage selector still needs to be added.";
+
+    return;
+
+  }
+
+
+  /*
+    Give the field focus first.
+  */
+
+  adjustmentField.focus();
+
+
+  /*
+    Put the amount into the field.
+  */
+
+  adjustmentField.value =
+    calculatedUpgradeAmount.toFixed(
+      2
+    );
+
+
+  /*
+    Tell the webpage that the value changed.
+
+    Some web applications don't recognize direct
+    JavaScript field changes unless input/change
+    events are also triggered.
+  */
+
+  adjustmentField.dispatchEvent(
+    new Event(
+      "input",
+      {
+        bubbles: true
+      }
+    )
+  );
+
+
+  adjustmentField.dispatchEvent(
+    new Event(
+      "change",
+      {
+        bubbles: true
+      }
+    )
+  );
+
+
+  /*
+    Remove focus after setting value.
+  */
+
+  adjustmentField.blur();
+
+
+  statusMessage.textContent =
+    `${formatMoney(
+      calculatedUpgradeAmount
+    )} was entered into Adjustment Amount. Review it before continuing.`;
+
+}
